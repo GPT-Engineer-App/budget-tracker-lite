@@ -1,4 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+
+const SUPABASE_URL = "https://qlspolxlciqisguikadj.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFsc3BvbHhsY2lxaXNndWlrYWRqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTIwNjIzNjUsImV4cCI6MjAyNzYzODM2NX0.irSWPOb6FeYmyF1U7suMoB4yQgWjKHxMAAU4VsmEBsU";
 import { Box, Button, FormControl, FormLabel, Input, Select, Stack, Text, Heading, IconButton, Flex, Tag, Spacer } from "@chakra-ui/react";
 import { FaPlus, FaTrash } from "react-icons/fa";
 
@@ -9,24 +12,58 @@ const Index = () => {
   const [date, setDate] = useState("");
   const [tags, setTags] = useState("");
 
-  const handleSubmit = (e) => {
+  useEffect(() => {
+    fetchTransactions();
+  }, []);
+
+  const fetchTransactions = async () => {
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/transactions`, {
+      headers: {
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+      },
+    });
+    const data = await response.json();
+    setTransactions(data);
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const newTransaction = {
-      id: Date.now(),
-      type,
-      amount: parseFloat(amount),
-      date,
-      tags: tags.split(",").map((tag) => tag.trim()),
-    };
-    setTransactions([...transactions, newTransaction]);
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/transactions`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+      },
+      body: JSON.stringify({
+        type,
+        amount: parseFloat(amount),
+        date,
+        tags: tags
+          .split(",")
+          .map((tag) => tag.trim())
+          .join(","),
+      }),
+    });
+    if (response.ok) {
+      fetchTransactions();
+    }
     setType("expense");
     setAmount("");
     setDate("");
     setTags("");
   };
 
-  const handleDelete = (id) => {
-    setTransactions(transactions.filter((transaction) => transaction.id !== id));
+  const handleDelete = async (id) => {
+    await fetch(`${SUPABASE_URL}/rest/v1/transactions?id=eq.${id}`, {
+      method: "DELETE",
+      headers: {
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+      },
+    });
+    fetchTransactions();
   };
 
   const totalSum = transactions.reduce((sum, transaction) => (transaction.type === "income" ? sum + transaction.amount : sum - transaction.amount), 0);
