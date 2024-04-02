@@ -40,10 +40,7 @@ const Index = () => {
         type,
         amount: parseFloat(amount),
         date,
-        tags: tags
-          .split(",")
-          .map((tag) => tag.trim())
-          .join(","),
+        tags: tags.trim(),
       }),
     });
     if (response.ok) {
@@ -111,11 +108,9 @@ const Index = () => {
               {transaction.type === "income" ? "+" : "-"}${transaction.amount.toFixed(2)}
             </Text>
             <Spacer />
-            {transaction.tags.map((tag) => (
-              <Tag key={tag} size="sm" colorScheme="blue" mr={2}>
-                {tag}
-              </Tag>
-            ))}
+            <Tag size="sm" colorScheme="blue" mr={2}>
+              {transaction.tags}
+            </Tag>
             <IconButton icon={<FaTrash />} size="sm" onClick={() => handleDelete(transaction.id)} />
           </Flex>
         ))}
