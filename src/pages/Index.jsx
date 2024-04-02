@@ -1,11 +1,19 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { FaPlus, FaTrash } from "react-icons/fa";
 
 const SUPABASE_URL = "https://qlspolxlciqisguikadj.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFsc3BvbHhsY2lxaXNndWlrYWRqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTIwNjIzNjUsImV4cCI6MjAyNzYzODM2NX0.irSWPOb6FeYmyF1U7suMoB4yQgWjKHxMAAU4VsmEBsU";
 import { Box, Button, FormControl, FormLabel, Input, Select, Stack, Text, Heading, IconButton, Flex, Tag, Spacer } from "@chakra-ui/react";
-import { FaPlus, FaTrash } from "react-icons/fa";
 
 const Index = () => {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem("supabase_token");
+    navigate("/login");
+  };
+
   const [transactions, setTransactions] = useState([]);
   const [type, setType] = useState("expense");
   const [amount, setAmount] = useState("");
@@ -67,9 +75,14 @@ const Index = () => {
 
   return (
     <Box maxWidth="500px" margin="auto" p={4}>
-      <Heading as="h1" size="xl" textAlign="center" mb={8}>
-        Budget Tracker
-      </Heading>
+      <Flex justify="space-between" align="center" mb={8}>
+        <Heading as="h1" size="xl">
+          Budget Tracker
+        </Heading>
+        <Button colorScheme="red" onClick={handleLogout}>
+          Logout
+        </Button>
+      </Flex>
       <form onSubmit={handleSubmit}>
         <Stack spacing={4}>
           <FormControl>
